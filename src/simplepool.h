@@ -19,6 +19,31 @@ public:
         this->pool_(std::move(other->pool_));
     }
 
+    template<typename... Args>
+    T* create(Args&& ...args)
+    {
+        void* space = this->alloc();
+        T* object = new (space) T(std::forward<Args>(args)...);
+        return object;
+    }
+
+    void remove(T* object)
+    {
+        object->~T();
+        this->free(object);
+    }
+
+    ~SimplePool()
+    {
+        // free all the memory allocated for the pool
+        while(!this->pool_.empty())
+        {
+            ::operator delete(this->pool_.top());
+            this->pool_.pop(); 
+        }
+    }
+
+protected:
     // first check for empty slot in pool
     // if we have return it
     // if we don't have create new slot and return it
@@ -44,15 +69,6 @@ public:
         this->pool_.push(static_cast<T*>(mem));
     }
 
-    ~SimplePool()
-    {
-        // free all the memory allocated for the pool
-        while(!this->pool_.empty())
-        {
-            ::operator delete(this->pool_.top());
-            this->pool_.pop(); 
-        }
-    }
 
 private:
     std::stack<T*> pool_;
