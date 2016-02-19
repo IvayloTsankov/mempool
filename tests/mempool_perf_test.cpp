@@ -1,7 +1,9 @@
 #include <cstdint>
+#include <vector>
 #include <cstring>
 #include <ctime>
-#include "../src/simplepool.h"
+#include "../src/mempool.h"
+using namespace mp;
 
 
 enum class FRAME_TYPE
@@ -10,8 +12,9 @@ enum class FRAME_TYPE
     UNKNOWN
 };
 
-struct Frame
+class Frame
 {
+public:
     Frame(int num_ch, FRAME_TYPE type)
     : num_channels_(num_ch),
       type_(type)
@@ -30,31 +33,21 @@ struct Frame
     uint16_t buff[3000];
 };
 
-
-void testPool()
-{
-    SimplePool<Frame> pool;
-
-    Frame* f = pool.create(2, FRAME_TYPE::AUDIO);
-    printf("(num_channels: %d) (type: %d)\n", f->num_channels_, (int)f->type_);
-
-    pool.remove(f); 
-    printf("After destructor (num_channels: %d) (type: %d)\n", f->num_channels_, (int)f->type_);
-}
-
 void usePool()
 {
     std::stack<Frame*> s;
-    SimplePool<Frame> p;
+    MemPool<Frame> p;
     for(unsigned i = 0; i < 1000; i++)
     {
         for(unsigned j = 0; j < 1000; j++)
         {
-            s.push(p.create(2, FRAME_TYPE::AUDIO));
+            auto frame = p.create_raw(2, FRAME_TYPE::AUDIO);
+            s.push(frame);
         }
         while(!s.empty())
         {
-            p.remove(s.top());
+            auto frame = s.top();
+            p.remove(frame);
             s.pop();
         }
     }
@@ -83,7 +76,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        printf("Usage: %s <pool|nopool>\n", argv[0]);
+        printf("Usage: %s <pool|nopool|refcnt>\n", argv[0]);
         exit(1);
     }
 
@@ -95,6 +88,10 @@ int main(int argc, char* argv[])
     else if (strcmp(input, "nopool") == 0)
     {
         noPool();
+    }
+    else
+    {
+        printf("not implemented test for %s\n", input);
     }
 
     return (0);
