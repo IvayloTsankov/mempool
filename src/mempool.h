@@ -7,15 +7,15 @@
 
 
 template <typename T>
-class SimplePool
+class MemPool
 {
 public:
-    SimplePool() {}
+    MemPool() {}
 
     // disable copy constructor
-    SimplePool(const SimplePool& ) = delete;
+    MemPool(const MemPool& ) = delete;
 
-    SimplePool(SimplePool& other)
+    MemPool(MemPool& other)
     {
         this->pool_(std::move(other->pool_));
     }
@@ -26,7 +26,7 @@ public:
         printf("create called\n");
         void* space = this->alloc();
         std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
-                                  std::bind(&SimplePool::remove, this, std::placeholders::_1));
+                                  std::bind(&MemPool::remove, this, std::placeholders::_1));
         return object;
     }
 
@@ -37,7 +37,7 @@ public:
         this->free(object);
     }
 
-    ~SimplePool()
+    ~MemPool()
     {
         // free all the memory allocated for the pool
         while(!this->pool_.empty())

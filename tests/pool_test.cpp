@@ -25,14 +25,14 @@ int main()
 {
     {
         printf("test mempool\n");
-        SimplePool<Vector> p;
+        MemPool<Vector> p;
         auto v = p.create(1, 1, 1);
         printf("v(%f, %f, %f)\n", v->x_, v->y_, v->z_);
     }
 
     {
         printf("2 pointers from mempool\n");
-        SimplePool<Vector> p;
+        MemPool<Vector> p;
         auto v = p.create(1, 1, 1);
         printf("v(%f, %f, %f)\n", v->x_, v->y_, v->z_);
 
@@ -42,7 +42,7 @@ int main()
 
     {
         printf("reuse memory from mempool\n");
-        SimplePool<Vector> p;
+        MemPool<Vector> p;
 
         {
             auto v = p.create(1, 1, 1);
