@@ -15,6 +15,19 @@ class MemPool
 public:
     MemPool() {}
 
+    template<typename... Args>
+    explicit MemPool(size_t size, Args&& ...args)
+    {
+        for(size_t i = 0; i < size; ++i)
+        {
+            this->pool_.push(static_cast<T*>(::operator new (sizeof(T))));
+        }
+
+#if defined (MPDEBUG)
+            printf("Memory pool preallocated size: %zu\n", this->pool_.size());
+#endif // (MPDEBUG)
+    }
+
     // disable copy constructor
     MemPool(const MemPool& ) = delete;
 
@@ -24,7 +37,8 @@ public:
     }
 
     template<typename... Args>
-    std::shared_ptr<T> create_shared(Args&& ...args)
+    std::shared_ptr<T>
+    create_shared(Args&& ...args)
     {
         void* space = this->alloc();
         std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
@@ -33,7 +47,8 @@ public:
     }
 
     template<typename... Argss>
-    std::unique_ptr<T, std::function<void(T*)>> create_unique(Argss&& ...args)
+    std::unique_ptr<T, std::function<void(T*)>>
+    create_unique(Argss&& ...args)
     {
         void* space = this->alloc();
         std::unique_ptr<T, std::function<void(T*)>> object(new (space) T(args...),
@@ -55,7 +70,12 @@ public:
         this->free(object);
     }
 
-    ~MemPool()
+    size_t free_size(void) const
+    {
+        return this->pool_.size();
+    }
+
+    void clear(void)
     {
         // free all the memory allocated for the pool
         while(!this->pool_.empty())
@@ -63,6 +83,11 @@ public:
             ::operator delete(this->pool_.top());
             this->pool_.pop(); 
         }
+    }
+
+    ~MemPool()
+    {
+        this->clear();
     }
 
 public:

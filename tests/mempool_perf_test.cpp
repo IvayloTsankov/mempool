@@ -30,7 +30,7 @@ public:
 
     int num_channels_;
     FRAME_TYPE type_;
-    uint16_t buff[32000];
+    uint16_t buff[8000];
 };
 
 void usePool()
@@ -72,6 +72,25 @@ void usePoolShared()
     }
 }
 
+void preAllocPool()
+{
+    MemPool<Frame> p(1000);
+    std::stack<std::shared_ptr<Frame>> s;
+    for(unsigned i = 0; i < 1000; i++)
+    {
+        for(unsigned j = 0; j < 1000; j++)
+        {
+            auto frame = p.create_shared(2, FRAME_TYPE::AUDIO);
+            s.push(frame);
+        }
+
+        while(!s.empty())
+        {
+            s.pop();
+        }
+    }
+}
+
 
 void noPool()
 {
@@ -96,7 +115,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        printf("Usage: %s <pool|nopool|poolshared>\n", argv[0]);
+        printf("Usage: %s <pool|nopool|poolshared|prealloc>\n", argv[0]);
         exit(1);
     }
 
@@ -112,6 +131,10 @@ int main(int argc, char* argv[])
     else if (strcmp(input, "poolshared") == 0)
     {
         usePoolShared();
+    }
+    else if (strcmp(input, "prealloc") == 0)
+    {
+        preAllocPool();
     }
     else
     {
