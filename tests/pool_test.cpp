@@ -1,6 +1,6 @@
 #include "../src/mempool.h"
 #include <cstdio>
-
+using namespace mp;
 
 class Vector
 {

@@ -1,10 +1,13 @@
-#ifndef MEMPOOL_SIMPLE_POOL_H_
-#define MEMPOOL_SIMPLE_POOL_H_
+#ifndef MEMPOOL_MEM_POOL_H_
+#define MEMPOOL_MEM_POOL_H_
 
 #include <memory>
 #include <stack>
 #include <utility>
 
+
+namespace mp
+{
 
 template <typename T>
 class MemPool
@@ -79,5 +82,6 @@ private:
     std::stack<T*> pool_;
 };
 
+} // end of namespace mp
 
-#endif // MEMPOOL_SIMPLE_POOL_H_
+#endif // MEMPOOL_MEM_POOL_H_
