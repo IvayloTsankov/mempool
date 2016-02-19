@@ -26,7 +26,7 @@ public:
     template<typename... Args>
     std::shared_ptr<T> create_shared(Args&& ...args)
     {
-        printf("creatd_shared called\n");
+//         printf("creatd_shared called\n");
 
         void* space = this->alloc();
         std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
@@ -37,7 +37,7 @@ public:
     template<typename... Argss>
     std::unique_ptr<T, std::function<void(T*)>> create_unique(Argss&& ...args)
     {
-        printf("create_unique called\n");
+//         printf("create_unique called\n");
 
         void* space = this->alloc();
         std::unique_ptr<T, std::function<void(T*)>> object(new (space) T(args...),
@@ -46,10 +46,18 @@ public:
         return object;
     }
 
+    template<typename... Argss>
+    T* create_raw(Argss&& ...args)
+    {
+//         printf("create_unique called\n");
+
+        void* space = this->alloc();
+        return new (space) T(args...);
+    }
 
     void remove(T* object)
     {
-        printf("remove called\n");
+//         printf("remove called\n");
 
         object->~T();
         this->free(object);
@@ -74,13 +82,13 @@ public:
         void* slot;
         if (!this->pool_.empty())
         {
-            printf("reuse called\n");
+//             printf("reuse called\n");
             slot = static_cast<void*>(this->pool_.top());
             this->pool_.pop();
         }
         else
         {
-            printf("new called\n");
+//             printf("new called\n");
             slot = ::operator new (sizeof(T));
         }
 
