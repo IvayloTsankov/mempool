@@ -26,8 +26,6 @@ public:
     template<typename... Args>
     std::shared_ptr<T> create_shared(Args&& ...args)
     {
-//         printf("creatd_shared called\n");
-
         void* space = this->alloc();
         std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
                                   std::bind(&MemPool::remove, this, std::placeholders::_1));
@@ -37,8 +35,6 @@ public:
     template<typename... Argss>
     std::unique_ptr<T, std::function<void(T*)>> create_unique(Argss&& ...args)
     {
-//         printf("create_unique called\n");
-
         void* space = this->alloc();
         std::unique_ptr<T, std::function<void(T*)>> object(new (space) T(args...),
             std::bind(&MemPool::remove, this, std::placeholders::_1));
@@ -49,16 +45,12 @@ public:
     template<typename... Argss>
     T* create_raw(Argss&& ...args)
     {
-//         printf("create_unique called\n");
-
         void* space = this->alloc();
         return new (space) T(args...);
     }
 
     void remove(T* object)
     {
-//         printf("remove called\n");
-
         object->~T();
         this->free(object);
     }
@@ -82,13 +74,19 @@ public:
         void* slot;
         if (!this->pool_.empty())
         {
-//             printf("reuse called\n");
+#if defined (MPDEBUG)
+            printf("reuse memory\n");
+#endif // (MPDEBUG)
+
             slot = static_cast<void*>(this->pool_.top());
             this->pool_.pop();
         }
         else
         {
-//             printf("new called\n");
+#if defined (MPDEBUG)
+            printf("new memory\n");
+#endif // (MPDEBUG)
+
             slot = ::operator new (sizeof(T));
         }
 
@@ -98,6 +96,10 @@ public:
     // add free memory to pool
     void free(void* mem)
     {
+#if defined (MPDEBUG)
+        printf("release memory to pool\n");
+#endif // (MPDEBUG)
+
         this->pool_.push(static_cast<T*>(mem));
     }
 
