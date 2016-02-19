@@ -24,18 +24,31 @@ public:
     }
 
     template<typename... Args>
-    std::shared_ptr<T> create(Args&& ...args)
+    std::shared_ptr<T> create_shared(Args&& ...args)
     {
-        printf("create called\n");
+        //printf("creatd_shared called\n");
+
         void* space = this->alloc();
         std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
                                   std::bind(&MemPool::remove, this, std::placeholders::_1));
         return object;
     }
 
+    template<typename... Args>
+    std::unique_ptr<T> create_unique(Args&& ...args)
+    {
+        //printf("creatd_shared called\n");
+
+        void* space = this->alloc();
+        std::unique_ptr<T> object(new (space) T(std::forward<Args>(args)...),
+                                  std::bind(&MemPool::remove, this, std::placeholders::_1));
+        return object;
+    }
+
     void remove(T* object)
     {
-        printf("remove called\n");
+        //printf("remove called\n");
+
         object->~T();
         this->free(object);
     }

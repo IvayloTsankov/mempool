@@ -23,44 +23,45 @@ public:
 };
 
 
-void TestUsage()
+void TestSharedUsage()
 {
     printf("test mempool\n");
     MemPool<Vector> p;
-    auto v = p.create(1, 1, 1);
+    auto v = p.create_shared(1, 1, 1);
     printf("v(%f, %f, %f)\n", v->x_, v->y_, v->z_);
 }
 
-void TestPointerAlloc()
+void TestSharedAlloc()
 {
     printf("2 pointers from mempool\n");
     MemPool<Vector> p;
-    auto v = p.create(1, 1, 1);
+    auto v = p.create_shared(1, 1, 1);
     printf("v(%f, %f, %f)\n", v->x_, v->y_, v->z_);
 
-    auto vv = p.create(1, 1, 1);
+    auto vv = p.create_shared(1, 1, 1);
     printf("v(%f, %f, %f)\n", vv->x_, vv->y_, vv->z_);
 }
 
-void TestMemoryReuse()
+void TestSharedReuse()
 {
     printf("reuse memory from mempool\n");
     MemPool<Vector> p;
 
     {
-        auto v = p.create(1, 1, 1);
+        auto v = p.create_shared(1, 1, 1);
         printf("v(%f, %f, %f)\n", v->x_, v->y_, v->z_);
     }
 
-    auto vv = p.create(1, 1, 1);
+    auto vv = p.create_shared(1, 1, 1);
     printf("v(%f, %f, %f)\n", vv->x_, vv->y_, vv->z_);
 }
 
+
 int main()
 {
-    TestUsage();
-    TestPointerAlloc();
-    TestMemoryReuse();
+    TestSharedUsage();
+    TestSharedAlloc();
+    TestSharedReuse();
 
     return (0);
 }
