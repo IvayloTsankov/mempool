@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <stack>
+#include <utility>
 
 
 template <typename T>
@@ -20,15 +21,18 @@ public:
     }
 
     template<typename... Args>
-    T* create(Args&& ...args)
+    std::shared_ptr<T> create(Args&& ...args)
     {
+        printf("create called\n");
         void* space = this->alloc();
-        T* object = new (space) T(std::forward<Args>(args)...);
+        std::shared_ptr<T> object(new (space) T(std::forward<Args>(args)...),
+                                  std::bind(&SimplePool::remove, this, std::placeholders::_1));
         return object;
     }
 
     void remove(T* object)
     {
+        printf("remove called\n");
         object->~T();
         this->free(object);
     }
@@ -43,7 +47,7 @@ public:
         }
     }
 
-protected:
+public:
     // first check for empty slot in pool
     // if we have return it
     // if we don't have create new slot and return it
@@ -52,11 +56,13 @@ protected:
         void* slot;
         if (!this->pool_.empty())
         {
+            printf("reuse called\n");
             slot = static_cast<void*>(this->pool_.top());
             this->pool_.pop();
         }
         else
         {
+            printf("new called\n");
             slot = ::operator new (sizeof(T));
         }
 
@@ -69,9 +75,9 @@ protected:
         this->pool_.push(static_cast<T*>(mem));
     }
 
-
 private:
     std::stack<T*> pool_;
 };
+
 
 #endif // MEMPOOL_SIMPLE_POOL_H_
