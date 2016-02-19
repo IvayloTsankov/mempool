@@ -23,17 +23,6 @@ public:
 };
 
 
-class Deleter
-{
-public:
-    void operator() (Vector* v)
-    {
-    }
-
-private:
-
-};
-
 class Pool
 {
 public:
