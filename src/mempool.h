@@ -2,13 +2,13 @@
 #define MEMPOOL_MEM_POOL_H_
 
 #include <memory>
+#include <functional>
 #include <stack>
 #include <utility>
 
 
 namespace mp
 {
-
 template <typename T>
 class MemPool
 {
